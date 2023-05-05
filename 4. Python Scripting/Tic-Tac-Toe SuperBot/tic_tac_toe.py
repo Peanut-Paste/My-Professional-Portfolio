@@ -91,7 +91,7 @@ class TicTacToe:
             while self.winner == 0:
                 for key, values in self.players.items():
                     turn += 1
-                    os.system('cls')
+                    # os.system('cls')
                     print(f"Turn: {turn}")
                     if key == "Bot":
                         pass
@@ -128,8 +128,9 @@ class TicTacToe:
     # Testing for AI
 
     def ai_computation(self):
-        # Get available number from the board
+        # get the full tuple in one list
         vertical_board = [i for row in self.board for i in row]
+        # Get available number from the board
         board = [i for row in self.board for i in row if type(i) == int]
         # Super bot wins or draw if bot starts first if sequence is correct
         # Always start in corner if bot starts first
@@ -147,26 +148,49 @@ class TicTacToe:
                     return 5
                 else:
                     return vertical_board[(first_move_index+8)-(first_move_index*2)]
-            else:
-                if self.defend_against("Bot") is None:
-                    if self.defend_against("Player 1") is None:
-                        return random.choice(board)
-                    else:
-                        return self.defend_against("Player 1")
+            elif vertical_board.count(self.players["Bot"]) == 2:
+                for i in range(0, 9, 2):
+                    if i == 4:
+                        continue
+                    if vertical_board[i] == self.players["Bot"]:
+                        first_move_num = i+1
 
+                row_of_first_move = math.ceil(first_move_num / 3) - 1
+                index_of_first_move = first_move_num % 3 - 1
+                column_of_first_move = [self.board[rows][index_of_first_move] for rows in range(3)]
+                if vertical_board[4] == self.players["Bot"] and self.defend_against("Bot") is None and self.defend_against("Player 1") is None:
+                    # row of first_move consist player or not
+                    if self.board[row_of_first_move].count(self.players["Player 1"]) == 1:
+                        if row_of_first_move >= 0:
+                            return self.board[(row_of_first_move+2) - (row_of_first_move*2)][index_of_first_move]
+                        else:
+                            return self.board[(row_of_first_move+2) + (row_of_first_move*2)][index_of_first_move]
+                    elif column_of_first_move.count(self.players["Player 1"]) == 1:
+                        if index_of_first_move >= 0:
+                            return self.board[row_of_first_move][(index_of_first_move+2) - (index_of_first_move*2)]
+                        else:
+                            return self.board[row_of_first_move][(index_of_first_move + 2) + (index_of_first_move * 2)]
+                    else:
+                        return self.bot_attack_defend(board)
                 else:
-                    return self.defend_against("Bot")
+                    return self.bot_attack_defend(board)
+
+            else:
+                return self.bot_attack_defend(board)
 
         # First move if player starts first is randomed
         else:
-            if self.defend_against("Bot") is None:
-                if self.defend_against("Player 1") is None:
-                    return random.choice(board)
-                else:
-                    return self.defend_against("Player 1")
+            return self.bot_attack_defend(board)
 
+    def bot_attack_defend(self, board):
+        if self.defend_against("Bot") is None:
+            if self.defend_against("Player 1") is None:
+                return random.choice(board)
             else:
-                return self.defend_against("Bot")
+                return self.defend_against("Player 1")
+
+        else:
+            return self.defend_against("Bot")
 
     # Defend against "player" can be used to find the best move to win
     def defend_against(self, player):
@@ -189,7 +213,7 @@ class TicTacToe:
                     else:
                         pass
 
-        # Checking columns to defend
+        # Checking diagonal to defend
         first_diagonal = [self.board[index][index] for index in range(3)]
         second_diagonal = [self.board[index * -1][index - 1] for index in range(1, 4)]
         if first_diagonal.count(self.players[player]) == 2:
