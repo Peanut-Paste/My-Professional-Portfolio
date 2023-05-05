@@ -91,7 +91,7 @@ class TicTacToe:
             while self.winner == 0:
                 for key, values in self.players.items():
                     turn += 1
-                    # os.system('cls')
+                    os.system('cls')
                     print(f"Turn: {turn}")
                     if key == "Bot":
                         pass
